@@ -28,7 +28,7 @@ except urllib2.URLError,e:
 else :
     print 'OK'
 page = response.read()
-f = open('12306-0703.json','w')
+f = open('d_12306.txt','w')
 f.write(page)
 print page
 
