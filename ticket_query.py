@@ -7,6 +7,7 @@ import urllib2
 import collections
 import re
 from datetime import datetime, timedelta
+from prettytable import PrettyTable
 #import codecs
 #import json
 
@@ -101,10 +102,14 @@ while True:
 		state4 = str(re.findall(pat_state,r[7])[0]).split('|')
 
 		#the final result
-		print 'trainnumber'+' \t'+'YW'+' \t\t'+'RW'+' \t\t'+'YZ'
-		print tnum1[0]+' \t\t'+state1[5]+' \t'+state1[0]+' \t'+state1[6]
-		print tnum2[0]+' \t\t'+state2[5]+' \t'+state2[0]+' \t'+state2[6]
-		print tnum3[0]+' \t\t'+state3[5]+' \t'+state3[0]+' \t'+state3[6]
-		print tnum4[0]+' \t\t'+state4[5]+' \t'+state4[0]+' \t'+state4[6]+'\n'
+		x = PrettyTable(["trainnumber","YW","RW","YZ"])
+		x.align["trainnumber"] = '1'
+		x.padding_width = 1
+		x.add_row([tnum1[0],state1[5],state1[0],state1[6]])
+		x.add_row([tnum2[0],state2[5],state2[0],state2[6]])
+		x.add_row([tnum3[0],state3[5],state3[0],state3[6]])
+		x.add_row([tnum4[0],state4[5],state4[0],state4[6]])
+		print (x)
+
 
     print ('input the new date to continue \nor press the "ctrl+z" to exit\n\n')
