@@ -1,51 +1,61 @@
 #-*- coding:utf-8 -*-
 import re
 import codecs
+import collections
+from prettytable import PrettyTable
+
 #import sys
 #reload(sys)
 #sys.setdefaultencoding("utf-8")
 
-f =codecs.open('d_12306.txt','r')
+f =codecs.open('d_12306.json','r')
+#with codecs.open(12306-0703.json,'r','GBK') as f:
 
-
-f_read = f.read()#.decode('utf-8')
+f_read = f.read().replace('\xe6\x97\xa0','soldout').replace('\xe6\x9c\x89','available')#.decode('utf-8')
 #print f_read
 pattern = re.compile(r'\[(.+?)\]')
 result = str(re.findall(pattern,f_read))
 #print result
 print ('the result')
-r_result = str(result.replace('"','\n').replace('\\xe6\\x97\\xa0','soldout').replace('\\xe6\\x9c\\x89','available'))
-#print r_result
-r = r_result.split('\n')
-#print r
+pattern = re.compile(r'"(.+?)"')
+#state of every train
+s_result = re.findall(pattern,result)
+'''
+print s_result
+pattern = re.compile(r'\|(.+?)\|')
+ss_result = re.findall(pattern,str(s_result[0]))
+'''
+
+'''
+print s_result[0]
+
+print len(ss_result)
+
+for i in range(len(ss_result)):
+    print i
+    print ss_result[i]
+'''
+x = PrettyTable(["trainnumber","start_time","arrive_time","last","YW","second_class","RW","DW","YZ"])
+x.align["trainnumber"] = '1'
+x.padding_width = 1
 
 
-pat_tnum = re.compile(r'\|(T\d+|Z\d+|K\d+)\|')
-tnum1 = re.findall(pat_tnum,r[1])
-tnum2 = re.findall(pat_tnum,r[3])
-tnum3 = re.findall(pat_tnum,r[5])
-tnum4 = re.findall(pat_tnum,r[7])
-#print tnum1[0]+'\n'+tnum2[0]+'\n'+tnum3[0]+'\n'+tnum4[0]
+dict_head = ['number','s_time','a_time','last','YW','s_class','RW','DW','YZ']
+refer_num = [3,8,9,10,28,30,23,22,29]
+train = collections.OrderedDict()
 
 
+for i in range(len(s_result)):
+    ss_result = str(s_result[i]).split('|')
+    for key in range(len(dict_head)):
+        if ss_result[refer_num[key]]:
+            train[dict_head[key]] = ss_result[refer_num[key]]
+        else :
+            train[dict_head[key]] = '--'
+    #print train
+    #x.add_row([train.values()])       
+    x.add_row([train['number'],train['s_time'],train['a_time'],train['last'],train['YW'],train['s_class'],train['RW'],train['DW'],train['YZ']])    
 
-#print the date od query
-pat_date = re.compile(r'\|(2\d{7})\|')
-date = re.findall(pat_date,r[1])
-print date[0]
 
-
-#pat_state = re.compile(r'(?<=\d\|\|)(\d{0,2}|\\.+)(?=\|\d+|\\)')
-pat_state = re.compile(r'\|\|\|\|(.+?)\|\|\|\|\|')
-
-state1 = str(re.findall(pat_state,r[1])[0]).split('|')
-state2 = str(re.findall(pat_state,r[3])[0]).split('|')
-state3 = str(re.findall(pat_state,r[5])[0]).split('|')
-state4 = str(re.findall(pat_state,r[7])[0]).split('|')
-
-print 'trainnumber'+' \t'+'YW'+' \t\t'+'RW'+' \t\t'+'YZ'
-print tnum1[0]+' \t\t'+state1[5]+' \t'+state1[0]+' \t'+state1[6]
-print tnum2[0]+' \t\t'+state2[5]+' \t'+state2[0]+' \t'+state2[6]
-print tnum3[0]+' \t\t'+state3[5]+' \t'+state3[0]+' \t'+state3[6]
-print tnum4[0]+' \t\t'+state4[5]+' \t'+state4[0]+' \t'+state4[6]
+print x
 
