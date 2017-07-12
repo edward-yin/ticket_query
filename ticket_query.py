@@ -46,7 +46,8 @@ while True:
 			print e.reason
 		else :
 			print 'OK\n'
-		page = response.read()
+		#replace the Chinese characters to English
+		page = response.read().replace('\xe6\x97\xa0','soldout').replace('\xe6\x9c\x89','available')
 
 
 		#save to file
@@ -72,43 +73,32 @@ while True:
 		'''
 
 
-		result =str(re.findall(r'\[(.+?)\]',page))
+		pattern = re.compile(r'\[(.+?)\]')
+		result = str(re.findall(pattern,page))
 
-		#replace the Chinese characters to English
-		r_result = str(result.replace('"','\n').replace('\\xe6\\x97\\xa0','soldout').replace('\\xe6\\x9c\\x89','available'))
-		r = r_result.split('\n')
+		
+		pattern = re.compile(r'"(.+?)"')
+		#state of every train
+		s_result = re.findall(pattern,result)
 
-		#get the number of the train
-		pat_tnum = re.compile(r'\|(T\d+|Z\d+|K\d+)\|')
-		tnum1 = re.findall(pat_tnum,r[1])
-		tnum2 = re.findall(pat_tnum,r[3])
-		tnum3 = re.findall(pat_tnum,r[5])
-		tnum4 = re.findall(pat_tnum,r[7])
-		#print tnum1[0]+'\n'+tnum2[0]+'\n'+tnum3[0]+'\n'+tnum4[0]
-
-
-		'''
-		#print the date od query
-		pat_date = re.compile(r'\|(2\d{7})\|')
-		date = re.findall(pat_date,r[1])
-		print date[0]
-		'''
-
-		#get the state of the trains
-		pat_state = re.compile(r'\|\|\|\|(.+?)\|\|\|\|\|')
-		state1 = str(re.findall(pat_state,r[1])[0]).split('|')
-		state2 = str(re.findall(pat_state,r[3])[0]).split('|')
-		state3 = str(re.findall(pat_state,r[5])[0]).split('|')
-		state4 = str(re.findall(pat_state,r[7])[0]).split('|')
-
-		#the final result
-		x = PrettyTable(["trainnumber","YW","RW","YZ"])
+		x = PrettyTable(["trainnumber","start_time","arrive_time","last","YW","second_class","RW","DW","YZ"])
 		x.align["trainnumber"] = '1'
 		x.padding_width = 1
-		x.add_row([tnum1[0],state1[5],state1[0],state1[6]])
-		x.add_row([tnum2[0],state2[5],state2[0],state2[6]])
-		x.add_row([tnum3[0],state3[5],state3[0],state3[6]])
-		x.add_row([tnum4[0],state4[5],state4[0],state4[6]])
+
+
+		dict_head = ['number','s_time','a_time','last','YW','s_class','RW','DW','YZ']
+		refer_num = [3,8,9,10,28,30,23,22,29]
+		train = collections.OrderedDict()
+		for i in range(len(s_result)):
+			ss_result = str(s_result[i]).split('|')
+			for key in range(len(dict_head)):
+				if ss_result[refer_num[key]]:
+					train[dict_head[key]] = ss_result[refer_num[key]]
+				else :
+					train[dict_head[key]] = '--'
+			#print train
+			#x.add_row([train.values()])       
+			x.add_row([train['number'],train['s_time'],train['a_time'],train['last'],train['YW'],train['s_class'],train['RW'],train['DW'],train['YZ']])    
 		print (x)
 
 
